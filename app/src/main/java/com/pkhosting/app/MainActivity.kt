@@ -1,6 +1,8 @@
 package com.pkhosting.app
 
 import android.content.Intent
+import android.content.ClipData
+import android.widget.Toast
 import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -97,7 +99,7 @@ private fun PKHostingApp(
                     Text("Quality-crafted hosting", color = Color(0xFFB8C9E1), fontSize = 11.sp)
                 }
                 Spacer(Modifier.weight(1f))
-                IconButton(onClick = { openPage("https://www.pkhosting.com/clientarea.php") }) {
+                IconButton(onClick = { openPage("https://www.pkhosting.com/dashboard/") }) {
                     Icon(Icons.Default.AccountCircle, contentDescription = "Customer account", tint = Color.White)
                 }
             }
@@ -248,6 +250,7 @@ private fun HostingScreen(modifier: Modifier, openPage: (String) -> Unit) {
 @Composable
 private fun DomainsScreen(modifier: Modifier, openPage: (String) -> Unit) {
     var domain by remember { mutableStateOf("") }
+    val context = androidx.compose.ui.platform.LocalContext.current
     LazyColumn(modifier.fillMaxSize(), contentPadding = PaddingValues(18.dp), verticalArrangement = Arrangement.spacedBy(15.dp)) {
         item {
             PageHeading("Find your domain", "Search for a name for your business, project or personal website.")
@@ -264,7 +267,12 @@ private fun DomainsScreen(modifier: Modifier, openPage: (String) -> Unit) {
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri)
                     )
-                    Button(onClick = { openPage("https://www.pkhosting.com/domains/") }, enabled = domain.isNotBlank(), modifier = Modifier.fillMaxWidth().padding(top = 12.dp)) {
+                    Button(onClick = {
+                        val clipboard = context.getSystemService(android.content.ClipboardManager::class.java)
+                        clipboard.setPrimaryClip(ClipData.newPlainText("Domain name", domain.trim()))
+                        Toast.makeText(context, "Domain copied. Paste it into the live search.", Toast.LENGTH_LONG).show()
+                        openPage("https://www.pkhosting.com/domains/")
+                    }, enabled = domain.isNotBlank(), modifier = Modifier.fillMaxWidth().padding(top = 12.dp)) {
                         Icon(Icons.Default.Search, contentDescription = null)
                         Spacer(Modifier.width(8.dp))
                         Text("Continue to secure domain search")
