@@ -1,4 +1,4 @@
-name: Build PKHosting Android APK
+name: Build Native PKHosting Android APK
 
 on:
   push:
@@ -9,57 +9,43 @@ permissions:
   contents: write
 
 jobs:
-  apk:
+  android:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
         uses: actions/checkout@v5
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v5
-        with:
-          node-version: 22
-
-      - name: Set up Java
+      - name: Set up JDK 17
         uses: actions/setup-java@v6
         with:
           distribution: temurin
-          java-version: 21
+          java-version: 17
 
-      - name: Set up Android SDK tools
-        uses: android-actions/setup-android@v4
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
         with:
-          accept-android-sdk-licenses: true
-          packages: ''
+          gradle-version: '8.9'
 
-      - name: Install Android platform and build tools
-        run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
+      - name: Build native debug APK
+        run: gradle assembleDebug
 
-      - name: Install app dependencies
-        run: npm install
+      - name: Rename APK
+        run: cp app/build/outputs/apk/debug/app-debug.apk PKHosting-Native.apk
 
-      - name: Generate Android project
-        run: npx cap add android
-
-      - name: Sync Capacitor
-        run: npx cap sync android
-
-      - name: Build APK
-        run: |
-          cd android
-          chmod +x gradlew
-          ./gradlew assembleDebug
-
-      - name: Prepare APK
-        run: cp android/app/build/outputs/apk/debug/app-debug.apk PKHosting.apk
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: PKHosting-Native-APK
+          path: PKHosting-Native.apk
+          retention-days: 30
 
       - name: Publish free APK download
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: android-v${{ github.run_number }}
-          name: PKHosting Android App - Build ${{ github.run_number }}
+          tag_name: native-android-v${{ github.run_number }}
+          name: PKHosting Native Android App - Build ${{ github.run_number }}
           body: |
-            PKHosting Android app build.
-            Download PKHosting.apk and install it on an Android device.
-          files: PKHosting.apk
+            Native PKHosting Android app built with Kotlin and Jetpack Compose.
+            Login, billing and checkout open through secure browser tabs.
+          files: PKHosting-Native.apk
           make_latest: true
