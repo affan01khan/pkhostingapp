@@ -1,0 +1,16 @@
+{
+  "appId": "com.pkhosting.app",
+  "appName": "PKHosting",
+  "webDir": "www",
+  "server": {
+    "url": "https://www.pkhosting.com",
+    "cleartext": false,
+    "allowNavigation": [
+      "pkhosting.com",
+      "*.pkhosting.com"
+    ]
+  },
+  "android": {
+    "allowMixedContent": false
+  }
+}
