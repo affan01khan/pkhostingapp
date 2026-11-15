@@ -1,0 +1,17 @@
+{
+  "name": "pkhosting-android",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Android app wrapper for the official PKHosting website",
+  "scripts": {
+    "android": "cap run android",
+    "build": "node -e \"console.log('PKHosting Android app uses the official website as its live app content.')\""
+  },
+  "dependencies": {
+    "@capacitor/android": "^7.0.0",
+    "@capacitor/core": "^7.0.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^7.0.0"
+  }
+}
