@@ -196,7 +196,7 @@ We'll host it.", color = Color.White, fontSize = 29.sp, lineHeight = 35.sp, font
                 title = "Already a customer?",
                 body = "Access your secure PKHosting account to manage services, invoices and support.",
                 action = "Open customer account",
-                onClick = { openPage("https://www.pkhosting.com/clientarea.php") }
+                onClick = { openPage("https://www.pkhosting.com/dashboard/") }
             )
         }
         item {
