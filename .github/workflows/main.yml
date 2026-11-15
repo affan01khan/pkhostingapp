@@ -1,30 +1,65 @@
-name: Build Android APK
+name: Build PKHosting Android APK
+
 on:
   push:
     branches: [main]
   workflow_dispatch:
+
 permissions:
   contents: write
+
 jobs:
   apk:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with: { node-version: 22 }
-      - uses: actions/setup-java@v4
-        with: { distribution: temurin, java-version: 21 }
-      - uses: android-actions/setup-android@v3
-      - run: npm install
-      - run: npx vite build && cp dist/client/_shell.html dist/client/index.html
-      - run: '[ -d android ] || npx cap add android'
-      - run: npx cap sync android
-      - run: cd android && chmod +x gradlew && ./gradlew assembleDebug
-      - run: cp android/app/build/outputs/apk/debug/app-debug.apk PKHosting.apk
-      - uses: softprops/action-gh-release@v2
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
-          tag_name: latest
-          name: PKHosting Android App
-          body: Download PKHosting.apk below and open it on your Android phone.
+          node-version: 22
+
+      - name: Set up Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          accept-android-sdk-licenses: true
+          packages: |
+            platform-tools
+            platforms;android-35
+            build-tools;35.0.0
+
+      - name: Install app dependencies
+        run: npm install
+
+      - name: Generate Android project
+        run: npx cap add android
+
+      - name: Sync Capacitor
+        run: npx cap sync android
+
+      - name: Build APK
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug
+
+      - name: Prepare APK
+        run: cp android/app/build/outputs/apk/debug/app-debug.apk PKHosting.apk
+
+      - name: Publish free APK download
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: android-v${{ github.run_number }}
+          name: PKHosting Android App - Build ${{ github.run_number }}
+          body: |
+            PKHosting Android app build.
+            Download PKHosting.apk and install it on an Android device.
           files: PKHosting.apk
           make_latest: true
